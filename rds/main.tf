@@ -2,7 +2,7 @@ resource "aws_security_group" "keycloakdb_sg" {
   name        = "keycloakdb_sg"
   description = "Security group for connecting to the KeyCloak database instance"
 
-  vpc_id = "${var.vpc_id}"
+  vpc_id = var.vpc_id
 
   # Only PostgreSQL traffic inbound
   ingress {
@@ -25,21 +25,21 @@ resource "aws_db_subnet_group" "main" {
   subnet_ids = concat("${var.public_subnet_ids}", "${var.private_subnet_ids}")
 }
 resource "aws_db_instance" "keycloakdb" {
-  allocated_storage       = "${var.rds_storage_gigabytes}"
-  backup_retention_period = "${var.rds_backup_retention_days}"
+  allocated_storage       = var.rds_storage_gigabytes
+  backup_retention_period = var.rds_backup_retention_days
 
-  db_subnet_group_name = "${aws_db_subnet_group.main.name}"
+  db_subnet_group_name = aws_db_subnet_group.main.name
 
-  engine         = "${var.rds_engine}"
-  engine_version = "${var.rds_engine_version}"
-  multi_az       = "${var.rds_multi_az}"
-  instance_class = "${var.instance_type}"
+  engine         = var.rds_engine
+  engine_version = var.rds_engine_version
+  multi_az       = var.rds_multi_az
+  instance_class = var.instance_type
 
-  identifier = "${var.rds_name}"
-  name       = "${var.rds_name}"
+  identifier = var.rds_name
+  name       = var.rds_name
 
-  username = "${var.rds_username}"
-  password = "${var.rds_password}"
+  username = var.rds_username
+  password = var.rds_password
 
   publicly_accessible = false
   storage_encrypted   = true

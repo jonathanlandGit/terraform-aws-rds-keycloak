@@ -1,35 +1,36 @@
-data "aws_ami" "stable_coreos" {
+data "aws_ami" "ubuntu" {
   most_recent = true
 
   filter {
-    name   = "description"
-    values = ["CoreOS Container Linux stable *"]
+    name = "name"
+    # values = ["CoreOS Container Linux stable *"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-*"]
   }
 
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
-  }
+  # filter {
+  #   name   = "architecture"
+  #   values = ["x86_64"]
+  # }
 
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
   }
 
-  owners = ["595879546273"]
+  owners = ["099720109477"] # Canonical
 }
 
 resource "aws_autoscaling_group" "app" {
-  name                 = "${var.autoscaling_group_name}"
-  vpc_zone_identifier  = "${var.vpc_zone_identifier}"
-  min_size             = "${var.autoscaling_min_size}"
-  max_size             = "${var.autoscaling_max_size}"
-  desired_capacity     = "${var.autoscaling_desired_size}"
-  launch_configuration = "${aws_launch_configuration.app.name}"
+  name                 = var.autoscaling_group_name
+  vpc_zone_identifier  = var.vpc_zone_identifier
+  min_size             = var.autoscaling_min_size
+  max_size             = var.autoscaling_max_size
+  desired_capacity     = var.autoscaling_desired_size
+  launch_configuration = aws_launch_configuration.app.name
 }
 
 data "template_file" "cloud_config" {
-  template = "${file("${path.module}/templates/cloud-config.tpl")}"
+  template = file("${path.module}/templates/cloud-config.tpl")
 
   vars = {
     aws_region         = "${var.aws_region}"
@@ -45,11 +46,11 @@ resource "aws_launch_configuration" "app" {
     "${var.instance_sg_id}",
   ]
 
-  key_name                    = "${var.key_name}"
-  image_id                    = "${data.aws_ami.stable_coreos.id}"
-  instance_type               = "${var.instance_type}"
-  iam_instance_profile        = "${var.app_iam_instance_profile_name}"
-  user_data                   = "${data.template_file.cloud_config.rendered}"
+  key_name                    = var.key_name
+  image_id                    = data.aws_ami.ubuntu.id
+  instance_type               = var.instance_type
+  iam_instance_profile        = var.app_iam_instance_profile_name
+  user_data                   = data.template_file.cloud_config.rendered
   associate_public_ip_address = true
 
   lifecycle {
@@ -63,6 +64,6 @@ resource "tls_private_key" "genkey" {
 }
 
 resource "aws_key_pair" "genkey" {
-  key_name   = "${var.key_name}"
-  public_key = "${tls_private_key.genkey.public_key_openssh}"
+  key_name   = var.key_name
+  public_key = tls_private_key.genkey.public_key_openssh
 }
