@@ -49,7 +49,3 @@ Due to shortcomings in the way that the KeyCloak Docker image and underlying app
 #### RDS Database Engine
 
 This code is based off of an RDS instance running PostgreSQL.  It's likely that you could change the database engine to MySQL or another database supported by KeyCloak, but this functionality has not been tested.
-
-# Questions/Issues
-
-Find a bug?  Have an idea on how to better implement a section of the code?  Have a general question?  Feel free to raise an issue or submit a pull request!  I can't guarantee that I have all the answers, as this project is really just an exercise to help me learn Terraform better.  But I'll certainly give it my best shot.
